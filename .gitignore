@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.tmp
+
+# Virtual environments
+venv/
+.env/
+ENV/
+
+# Model weights + training outputs
+intent_model/
+command_model/
+*/pytorch_model.bin
+*/tf_model.h5
+*/config.json
+*/tokenizer.json
+*/vocab.txt
+*/special_tokens_map.json
+*/tokenizer_config.json
+
+# Datasets
+data/
+
+# VSCode
+.vscode/
+
+# macOS BS
+.DS_Store
+
+# Logs
+*.log
+logs/
+wandb/
+
+# Checkpoints
+checkpoint-*/
