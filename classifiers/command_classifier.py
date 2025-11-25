@@ -1,6 +1,7 @@
 """
 CommandClassifier: Predicts which specific command a user is requesting.
 Loads a fine-tuned transformers sequence classification model and exposes a `predict(text)` method.
+This classifier is for my bot it can be completely ignored if you want just the conversation model.
 """
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
