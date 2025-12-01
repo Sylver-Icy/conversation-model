@@ -4,7 +4,9 @@ import os
 from openai import OpenAI
 
 from prompts.character_profile import create_character_prompt
+
 from regulators.emotion_model import EmotionModel
+from regulators.context_model import fetch_context, add_to_history
 
 load_dotenv()  # loads .env
 
@@ -20,11 +22,14 @@ class ChatGenerator:
         veyra.update_mood(deltas)
         mood = veyra.get_active_mood()
 
+        #get context
+        context = fetch_context(user_msg)
+
         system_prompt = create_character_prompt(
             user_name="Sylver",
             frndship_lvl=3,
             mood=mood,
-            recent_chat=[],
+            recent_chat=context,
             user_memory_context=[]
         )
 
@@ -35,4 +40,18 @@ class ChatGenerator:
                 {"role": "user", "content": user_msg}
             ]
         )
+        add_to_history(response.choices[0].message.content)
         return response.choices[0].message.content
+
+if __name__ == "__main__":
+    gen = ChatGenerator()
+    print("\nLive Veyra test. Type 'exit' to quit.\n")
+
+    while True:
+        user_msg = input("You: ")
+        if user_msg.lower() == "exit":
+            break
+
+        reply = gen.generate(user_msg)
+        print("Veyra:", reply)
+        print("\n---\n")

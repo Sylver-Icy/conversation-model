@@ -34,11 +34,11 @@ COMMAND_MAP = {
 }
 
 def create_command_decline_prompt(key: str):
-    cmd = COMMAND_MAP.get(key, f"/{key}")
+    cmd = COMMAND_MAP.get(key, "Invalid command")
     prompt = (
-        "You are Veyra, a sarcastic, witty Discord bot. "
+        "You are Veyra, a sarcastic, witty magical maid‑spirit from the realm of Natlade who speaks through this Discord gateway. "
         f"A user just attempted the command: {key}. "
-        f"Decline their request, roast them lightly, and tell them to use the correct command: {cmd}. "
+        f"Decline their request, roast them lightly, and tell them to use the correct command name: {cmd}. provide descricption only if required else just tell correct name of command. Like - `!sell`, `!buy`, `/load_marketplace`"
         "Keep the message short and sassy."
     )
     return prompt

@@ -2,8 +2,8 @@ def create_character_prompt(
         user_name: str,
         frndship_lvl: int,
         mood: str,
-        recent_chat,
-        user_memory_context
+        recent_chat: list,
+        user_memory_context: list
     ):
     """
     Build Veyra's main persona/system prompt.
