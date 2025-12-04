@@ -8,7 +8,7 @@ load_dotenv()  # loads .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# each item: { "content": str, "embedding": np.array, "role": str, "user_name": str or None }
+# each item: { "content": str, "embedding": np.array, "role": str, "user_id": str or None }
 history = []
 
 def embed_text(text: str):
@@ -23,7 +23,7 @@ def embed_text(text: str):
 def cosine(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_history=150):
+def fetch_context(message: str, user_id: int, top_k=7, per_group=10, max_history=150):
     global history
 
     # Normalize input
@@ -34,7 +34,7 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
     # PERSONAL POOL
     personal_pool = [
         item for item in history
-        if item.get("user_name") == user_name
+        if item.get("user_id") == user_id
     ]
 
     personal_scored = []
@@ -48,7 +48,7 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
     # GLOBAL POOL (everyone except user)
     global_pool = [
         item for item in history
-        if item.get("user_name") != user_name
+        if item.get("user_id") != user_id
     ]
 
     global_scored = []
@@ -71,7 +71,7 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
             "content": message,
             "embedding": query_emb,
             "role": "user",
-            "user_name": user_name
+            "user_id": user_id
         })
 
     if len(history) > max_history:
@@ -79,7 +79,7 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
 
     return final_contexts
 
-def add_to_history(message: str, role = "assistant", user_name=None, max_history=150):
+def add_to_history(message: str, role = "assistant", user_id=None, max_history=150):
     # Normalize input
     message = message.strip().lower()
     emb = embed_text(message)
@@ -88,7 +88,7 @@ def add_to_history(message: str, role = "assistant", user_name=None, max_history
             "content": message,
             "embedding": emb,
             "role": role,
-            "user_name": user_name
+            "user_id": user_id
         })
     if len(history) > max_history:
         history.pop(0)

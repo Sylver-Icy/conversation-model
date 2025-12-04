@@ -17,7 +17,7 @@ class CommandDeclineGenerator:
     def __init__(self):
         self.client = client
 
-    def generate(self, command: str) -> str:
+    async def generate(self, command: str) -> str:
         """
         Create a short, roasty decline message telling the user to use the proper command.
 
@@ -30,7 +30,7 @@ class CommandDeclineGenerator:
         prompt = create_command_decline_prompt(command)
 
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model="gpt-5-mini",
                 messages=[{"role": "user", "content": prompt}]
             )

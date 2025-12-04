@@ -16,12 +16,24 @@ user = Engine()
 
 class Message(BaseModel):
     text: str
+    frndship_title: str
+    user_id: int
+    user_name: str
+
 
 app = FastAPI()
 
 @app.post("/chat")
-def chat(req: Message):
-    return {"reply": user.respond(req.text)}
+async def chat(req: Message):
+
+        reply = await user.respond(
+            req.text,
+            frndship_title=req.frndship_title,
+            user_id=req.user_id,
+            user_name=req.user_name
+        )
+        return reply
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

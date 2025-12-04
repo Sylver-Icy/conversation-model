@@ -11,15 +11,15 @@ class Engine:
         self.cmd_dlcn = CommandDeclineGenerator()
         self.msg_dlcn = MsgDeclineGenerator()
 
-    def respond(self, message: str):
+    async def respond(self, message: str, user_id: int, user_name: str, frndship_title: str):
         route_type, label = main_router(message)
 
         # Branch 1 — Chitchat
         if route_type == "intent":
             return (
-                self.chat.generate(message)
+                await self.chat.generate(message, user_id, user_name, frndship_title)
                 if label == "chitchat"
-                else self.msg_dlcn.generate(message)
+                else await self.msg_dlcn.generate(message)
             )
 
         # Branch 3 — Commands
@@ -27,4 +27,4 @@ class Engine:
             if label != "other_command":
                 return f"running command: {label}"
 
-            return self.cmd_dlcn.generate(message)
+            return await self.cmd_dlcn.generate(message)

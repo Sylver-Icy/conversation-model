@@ -1,11 +1,6 @@
-from dotenv import load_dotenv
-import os
-
 import json
-from openai import OpenAI
 
-load_dotenv()  # loads .env
-
+from state.client import client
 
 class EmotionModel:
     """
@@ -15,7 +10,7 @@ class EmotionModel:
     """
 
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = client
 
 
         # Internal persistent mood state (modifiable by engine)
@@ -27,7 +22,7 @@ class EmotionModel:
             "flirty": 0.0
         }
 
-    def extract_deltas(self, message: str) -> dict:
+    async def extract_deltas(self, message: str) -> dict:
         """
         Calls a small llm to extract integer mood deltas.
         Returns a dict like:
@@ -52,7 +47,7 @@ class EmotionModel:
             "Now output the JSON for the user message above."
         )
 
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
                 {"role": "system", "content": "You classify emotion deltas for mood analysis. Respond ONLY with JSON."},

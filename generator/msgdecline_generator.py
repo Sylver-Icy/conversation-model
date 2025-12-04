@@ -6,11 +6,11 @@ class MsgDeclineGenerator:
     def __init__(self):
         self.client = client
 
-    def generate(self, msg: str) -> str:
+    async def generate(self, msg: str) -> str:
         prompt = lore_decline_prompt(msg)
 
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model="gpt-5-mini",
                 messages=[{"role": "user", "content": prompt}]
             )

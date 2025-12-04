@@ -45,7 +45,7 @@ class IntentClassifier:
         max_prob, pred_idx = torch.max(probs, dim=1)
 
         # Apply threshold: return 'chitchat' if confidence is too low
-        if max_prob.item() < 0.45:
+        if max_prob.item() < 0.15:
             return "chitchat"
 
         return self.LABELS[pred_idx.item()]

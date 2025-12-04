@@ -11,25 +11,25 @@ class ChatGenerator:
     def __init__(self):
         self.client = client
 
-    def generate(self, user_msg: str, user_name: str = "Player", frndship_lvl: int = 3) -> str:
+    async def generate(self, user_msg: str,user_id: int, user_name: str = "Player", frndship_title: str = "stranger") -> str:
         #do mood stuff
-        deltas = veyra.extract_deltas(user_msg)
+        deltas = await veyra.extract_deltas(user_msg)
         veyra.update_mood(deltas)
         mood = veyra.get_active_mood()
 
         #get context
-        context = fetch_context(user_msg, user_name)
+        context = fetch_context(user_msg, user_id)
 
         system_prompt = create_character_prompt(
             user_name=user_name,
-            frndship_lvl=frndship_lvl,
+            frndship_title=frndship_title,
             mood=mood,
             recent_chat=context,
             user_memory_context=[]
         )
 
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model="gpt-5-chat-latest",
                 messages=[
                     {"role": "system", "content": system_prompt},
