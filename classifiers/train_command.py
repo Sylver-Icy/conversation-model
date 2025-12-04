@@ -19,11 +19,12 @@ labels = {
     "check_wallet": 0,
     "check_exp": 1,
     "check_energy": 2,
-    "check_friendship": 3,
+    "check_inventory": 3,
     "quest": 4,
     "shop": 5,
     "start_race": 6,
-    "other_command": 7
+    "flip_coin": 7,
+    "other_command": 8
 }
 
 def encode(batch):
@@ -41,8 +42,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 dataset = dataset.map(encode, batched=True)
 dataset = dataset.remove_columns(["label"])
 
-# Load the base model and attach a classification head with 8 output labels.
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=8)
+# Load the base model and attach a classification head with 9 output labels.
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=9)
 
 # Configure training hyperparameters.
 args = TrainingArguments(

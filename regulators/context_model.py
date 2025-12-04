@@ -26,6 +26,9 @@ def cosine(a, b):
 def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_history=150):
     global history
 
+    # Normalize input
+    message = message.strip().lower()
+
     query_emb = embed_text(message)
 
     # PERSONAL POOL
@@ -62,13 +65,14 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
 
     final_contexts = [content for _, content in combined[:top_k]]
 
-    # ADD USER MESSAGE TO HISTORY
-    history.append({
-        "content": message,
-        "embedding": query_emb,
-        "role": "user",
-        "user_name": user_name
-    })
+    # Skip useless entries (too short/no signal)
+    if len(message) > 3:
+        history.append({
+            "content": message,
+            "embedding": query_emb,
+            "role": "user",
+            "user_name": user_name
+        })
 
     if len(history) > max_history:
         history.pop(0)
@@ -76,12 +80,15 @@ def fetch_context(message: str, user_name: str, top_k=7, per_group=10, max_histo
     return final_contexts
 
 def add_to_history(message: str, role = "assistant", user_name=None, max_history=150):
+    # Normalize input
+    message = message.strip().lower()
     emb = embed_text(message)
-    history.append({
-        "content": message,
-        "embedding": emb,
-        "role": role,
-        "user_name": user_name
-    })
+    if len(message) > 3:
+        history.append({
+            "content": message,
+            "embedding": emb,
+            "role": role,
+            "user_name": user_name
+        })
     if len(history) > max_history:
         history.pop(0)
