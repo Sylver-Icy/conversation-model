@@ -4,14 +4,10 @@ Handles multi-argument command declines by producing a short,
 sassy, persona-consistent message instructing the user to use
 the correct slash/prefix command.
 """
-from dotenv import load_dotenv
-import os
-
-from openai import OpenAI
 
 from prompts.command_decline import create_command_decline_prompt
 
-load_dotenv()  # loads .env
+from state.client import client
 # COMMAND_MAP maps internal command labels to their correct bot commands and a short description.
 
 
@@ -19,7 +15,7 @@ load_dotenv()  # loads .env
 class CommandDeclineGenerator:
     """Generate decline messages for commands that require arguments."""
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = client
 
     def generate(self, command: str) -> str:
         """
@@ -33,8 +29,11 @@ class CommandDeclineGenerator:
         """
         prompt = create_command_decline_prompt(command)
 
-        response = self.client.chat.completions.create(
-            model="gpt-5-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-5-mini",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
+        except Exception:
+            return "ugh—my brain lagged. ask properly again."

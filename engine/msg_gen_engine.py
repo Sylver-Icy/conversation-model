@@ -12,22 +12,19 @@ class Engine:
         self.msg_dlcn = MsgDeclineGenerator()
 
     def respond(self, message: str):
-        label = main_router(message)
+        route_type, label = main_router(message)
 
         # Branch 1 — Chitchat
-        if label == "chitchat":
-            return self.chat.generate(message)
-
-        # Branch 2 — Study (do later)
-        if label == "study":
-            return self.msg_dlcn.generate(message)
+        if route_type == "intent":
+            return (
+                self.chat.generate(message)
+                if label == "chitchat"
+                else self.msg_dlcn.generate(message)
+            )
 
         # Branch 3 — Commands
-        # Only allow zero-arg commands
-        ZERO_ARG = {"start_race", "shop", "inventory"}
+        if route_type == "command":
+            if label != "other_command":
+                return f"running command: {label}"
 
-        if label in ZERO_ARG:
-            return f"running command: {label}"
-
-        # If it's a command but NOT zero-arg → reject
-        return self.cmd_dlcn.generate(message)
+            return self.cmd_dlcn.generate(message)

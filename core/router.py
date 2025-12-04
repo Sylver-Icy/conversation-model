@@ -26,9 +26,10 @@ def main_router(message: str):
     """
     intent = classify_intent(message)
     if intent == "command":
-        return classify_command(message)
+        cmd = classify_command(message)
+        return ("command", cmd)
 
-    return intent
+    return ("intent", intent)
 
 
 def classify_intent(message: str):

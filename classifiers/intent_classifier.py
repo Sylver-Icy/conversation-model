@@ -5,6 +5,7 @@ This module is fully modular and can be reused in any conversation engine projec
 """
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
+import torch.nn.functional as F
 
 class IntentClassifier:
     """
@@ -32,9 +33,19 @@ class IntentClassifier:
         Returns:
             str: One of the intent labels defined in LABELS.
         """
+        # Normalize input text
+        text = text.strip().lower()
+
         # Tokenize and batch the input for the model.
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True)
         outputs = self.model(**inputs)
-        # Take the highest-scoring label from the model's logits.
-        pred = torch.argmax(outputs.logits, dim=1).item()
-        return self.LABELS[pred]
+
+        # Convert logits to probabilities
+        probs = F.softmax(outputs.logits, dim=1)
+        max_prob, pred_idx = torch.max(probs, dim=1)
+
+        # Apply threshold: return 'chitchat' if confidence is too low
+        if max_prob.item() < 0.45:
+            return "chitchat"
+
+        return self.LABELS[pred_idx.item()]

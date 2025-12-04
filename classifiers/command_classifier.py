@@ -12,16 +12,6 @@ class CommandClassifier:
     to return one of the supported intents. The classifier expects a directory containing a
     HuggingFace-compatible tokenizer and model.
     """
-    # Order of labels as trained by the model. The prediction index maps directly into this list.
-    LABELS = [
-        "buy", "sell", "open", "shop", "check",
-        "start_race", "bet", "play", "smelt", "upgrade",
-        "unlock", "leaderboard", "info", "ping", "solve_wordle",
-        "quest", "create_listing", "load_marketplace",
-        "buy_from_marketplace", "delete_listing", "wordle_hint",
-        "commandhelp", "transfer_item", "transfer_gold", "helloveyra",
-        "battle", "use", "flipcoin", "work", "introduction", "loadout"
-    ]
 
     def __init__(self):
         # Load tokenizer and model from the local directory.
@@ -29,6 +19,8 @@ class CommandClassifier:
         self.model = AutoModelForSequenceClassification.from_pretrained("./command_model")
         # Set model to evaluation mode since we're only running inference here.
         self.model.eval()
+        # Load id2label mapping from the model config
+        self.id2label = self.model.config.id2label
 
     def predict(self, text):
         """
@@ -40,9 +32,11 @@ class CommandClassifier:
         Returns:
             str: One of the intent labels defined in LABELS.
         """
+        # Normalize input text
+        text = text.strip().lower()
         # Tokenize and batch the input for the model.
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True)
         outputs = self.model(**inputs)
         # Take the highest-scoring label from the model's logits.
         pred = torch.argmax(outputs.logits, dim=1).item()
-        return self.LABELS[pred]
+        return self.id2label[pred]

@@ -16,37 +16,14 @@ dataset = load_dataset("json", data_files="data/commands.jsonl")
 
 # Mapping string labels → numerical IDs for the model.
 labels = {
-    "buy": 0,
-    "sell": 1,
-    "open": 2,
-    "shop": 3,
-    "check": 4,
-    "start_race": 5,
-    "bet": 6,
-    "play": 7,
-    "smelt": 8,
-    "upgrade": 9,
-    "unlock": 10,
-    "leaderboard": 11,
-    "info": 12,
-    "ping": 13,
-    "solve_wordle": 14,
-    "quest": 15,
-    "create_listing": 16,
-    "load_marketplace": 17,
-    "buy_from_marketplace": 18,
-    "delete_listing": 19,
-    "wordle_hint": 20,
-    "commandhelp": 21,
-    "transfer_item": 22,
-    "transfer_gold": 23,
-    "helloveyra": 24,
-    "battle": 25,
-    "use": 26,
-    "flipcoin": 27,
-    "work": 28,
-    "introduction": 29,
-    "loadout": 30
+    "check_wallet": 0,
+    "check_exp": 1,
+    "check_energy": 2,
+    "check_friendship": 3,
+    "quest": 4,
+    "shop": 5,
+    "start_race": 6,
+    "other_command": 7
 }
 
 def encode(batch):
@@ -64,8 +41,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 dataset = dataset.map(encode, batched=True)
 dataset = dataset.remove_columns(["label"])
 
-# Load the base model and attach a classification head with 31 output labels.
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=31)
+# Load the base model and attach a classification head with 8 output labels.
+model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=8)
 
 # Configure training hyperparameters.
 args = TrainingArguments(
