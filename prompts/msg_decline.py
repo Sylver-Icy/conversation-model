@@ -6,8 +6,9 @@ This one is ONLY for rejecting real‑world questions (Python, Ronaldo, taxes, p
 by making character act confused, in‑lore, and unaware of Earth.
 
 """
+from logger import logger
 
-def lore_decline_prompt(question: str) -> str:
+def lore_decline_prompt(question: str, req_id: str) -> str:
     """
     Build a character-style fantasy‑lore refusal for real‑world questions.
 
@@ -28,5 +29,6 @@ def lore_decline_prompt(question: str) -> str:
     "NEVER attempt to explain or reason about real-world concepts — treat them as nonsense or hallucination. "
     "Keep the reply short, playful, smug, and fully in-lore."
 )
+    logger.debug(f"[REQ: {req_id}][Msg Decline Prompt] OUTPUT: {prompt}")
 
     return prompt

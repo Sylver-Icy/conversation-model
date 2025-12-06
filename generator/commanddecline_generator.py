@@ -17,7 +17,7 @@ class CommandDeclineGenerator:
     def __init__(self):
         self.client = client
 
-    async def generate(self, command: str) -> str:
+    async def generate(self, command: str, req_id) -> str:
         """
         Create a short, roasty decline message telling the user to use the proper command.
 
@@ -27,7 +27,7 @@ class CommandDeclineGenerator:
         Returns:
             str: A persona-consistent decline message.
         """
-        prompt = create_command_decline_prompt(command)
+        prompt = create_command_decline_prompt(command, req_id)
 
         try:
             response = await self.client.chat.completions.create(

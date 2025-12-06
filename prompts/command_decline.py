@@ -1,3 +1,5 @@
+from logger import logger
+
 COMMAND_MAP = {
     "buy": "!buy — Purchase items from the shop",
     "sell": "!sell — Sell items the shop accepts",
@@ -27,7 +29,7 @@ COMMAND_MAP = {
     "introduction": "/introduction — Open intro form",
 }
 
-def create_command_decline_prompt(key: str):
+def create_command_decline_prompt(key: str, req_id: str):
     cmd = COMMAND_MAP.get(key, None)
     if cmd is None:
         prompt = (
@@ -45,4 +47,6 @@ def create_command_decline_prompt(key: str):
             "Do NOT explain command functionality unless mocking them — usually just correct the syntax like `!sell`, `!buy`, `/load_marketplace`. "
             "Keep the message short and sassy."
         )
+    logger.debug(f"[REQ: {req_id}][Command Decline Prompt] OUTPUT: {prompt}")
+
     return prompt

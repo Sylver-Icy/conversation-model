@@ -3,6 +3,7 @@ Lightweight routing utility for testing.
 Loads the intent and command classifiers once and exposes simple functions
 to classify a message at a high level (intent) and at a command level.
 """
+from logger import logger
 
 from classifiers.intent_classifier import IntentClassifier
 from classifiers.command_classifier import CommandClassifier
@@ -13,7 +14,7 @@ intent_clf = IntentClassifier()
 cmd_clf = CommandClassifier()
 
 
-def main_router(message: str):
+def main_router(message: str, req_id: str):
     """
     Routes the message through the intent classifier.
     If the intent is 'command', it runs the command classifier.
@@ -27,8 +28,10 @@ def main_router(message: str):
     intent = classify_intent(message)
     if intent == "command":
         cmd = classify_command(message)
+        logger.info(f"[REQ {req_id}] [Intent] [{message} was classiefier as {cmd}]")
         return ("command", cmd)
 
+    logger.info(f"[REQ {req_id}] [Intent] [{message} was classiefier as {intent}]")
     return ("intent", intent)
 
 

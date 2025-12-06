@@ -1,6 +1,9 @@
+from logger import logger
+
 import json
 
 from state.client import client
+
 
 class EmotionModel:
     """
@@ -22,7 +25,7 @@ class EmotionModel:
             "flirty": 0.0
         }
 
-    async def extract_deltas(self, message: str) -> dict:
+    async def extract_deltas(self, message: str, req_id: str) -> dict:
         """
         Calls a small llm to extract integer mood deltas.
         Returns a dict like:
@@ -76,6 +79,7 @@ class EmotionModel:
                     "flirty": 0
                 }
 
+        logger.info(f"[REQ {req_id}] [Mood Delta] Mood change coz of {message} -> {deltas}")
         return deltas
 
     def update_mood(self, deltas: dict):

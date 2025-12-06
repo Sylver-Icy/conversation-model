@@ -6,8 +6,8 @@ class MsgDeclineGenerator:
     def __init__(self):
         self.client = client
 
-    async def generate(self, msg: str) -> str:
-        prompt = lore_decline_prompt(msg)
+    async def generate(self, msg: str, req_id) -> str:
+        prompt = lore_decline_prompt(msg, req_id)
 
         try:
             response = await self.client.chat.completions.create(
