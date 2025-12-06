@@ -11,13 +11,13 @@ class Engine:
         self.cmd_dlcn = CommandDeclineGenerator()
         self.msg_dlcn = MsgDeclineGenerator()
 
-    async def respond(self, message: str, user_id: int, user_name: str, frndship_title: str):
+    async def respond(self, message: str, user_id: int, user_name: str, frndship_title: str, chat_history: list):
         route_type, label = main_router(message)
 
         # Branch 1 — Chitchat
         if route_type == "intent":
             return (
-                await self.chat.generate(message, user_id, user_name, frndship_title)
+                await self.chat.generate(message, user_id, user_name, frndship_title, chat_history)
                 if label == "chitchat"
                 else await self.msg_dlcn.generate(message)
             )

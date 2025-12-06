@@ -11,7 +11,7 @@ class ChatGenerator:
     def __init__(self):
         self.client = client
 
-    async def generate(self, user_msg: str,user_id: int, user_name: str = "Player", frndship_title: str = "stranger") -> str:
+    async def generate(self, user_msg: str,user_id: int, user_name: str = "Player", frndship_title: str = "Stranger", chat_history: list = [] ) -> str:
         #do mood stuff
         deltas = await veyra.extract_deltas(user_msg)
         veyra.update_mood(deltas)
@@ -24,8 +24,8 @@ class ChatGenerator:
             user_name=user_name,
             frndship_title=frndship_title,
             mood=mood,
-            recent_chat=context,
-            user_memory_context=[]
+            chat_context=context,
+            chat_history=chat_history
         )
 
         try:

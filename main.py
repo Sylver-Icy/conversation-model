@@ -19,6 +19,7 @@ class Message(BaseModel):
     frndship_title: str
     user_id: int
     user_name: str
+    message_history: list
 
 
 app = FastAPI()
@@ -30,7 +31,8 @@ async def chat(req: Message):
             req.text,
             frndship_title=req.frndship_title,
             user_id=req.user_id,
-            user_name=req.user_name
+            user_name=req.user_name,
+            chat_history=req.message_history
         )
         return reply
 

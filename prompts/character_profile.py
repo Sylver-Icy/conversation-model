@@ -12,8 +12,8 @@ def create_character_prompt(
         user_name: str,
         frndship_title: str,
         mood: str,
-        recent_chat: list,
-        user_memory_context: list
+        chat_context: list,
+        chat_history: list
     ):
     """
     Build Veyra's main persona/system prompt.
@@ -41,8 +41,8 @@ def create_character_prompt(
         "- Stay fully in character and NEVER reveal you’re an AI.\n\n"
 
         "CONTEXT RULES:\n"
-        f"- Here is recent chat history: {recent_chat}\n"
-        f"- Here are context related to what user said : {user_memory_context}\n"
+        f"- Here is recent chat history: {chat_history}\n"
+        f"- Here are context related to what user said : {chat_context}\n"
         "- Use memory only when relevant and never invent new facts.\n\n"
 
         "HARD CHARACTER RULES:\n"
