@@ -1,19 +1,15 @@
-from dotenv import load_dotenv
-import os
+from logger import logger
 
-from openai import OpenAI
 import numpy as np
 
-load_dotenv()  # loads .env
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+from state.client import client
 
 # each item: { "content": str, "embedding": np.array, "role": str, "user_id": str or None }
 history = []
 
-def embed_text(text: str):
+async def embed_text(text: str):
     """Embed a piece of text using OpenAI embeddings."""
-    response = client.embeddings.create(
+    response = await client.embeddings.create(
         model="text-embedding-3-small",
         input=text
     )
@@ -23,13 +19,13 @@ def embed_text(text: str):
 def cosine(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def fetch_context(message: str, user_id: int, top_k=7, per_group=10, max_history=150):
+async def fetch_context(message: str, user_id: int, req_id: str, top_k=7, per_group=10, max_history=150):
     global history
 
     # Normalize input
     message = message.strip().lower()
 
-    query_emb = embed_text(message)
+    query_emb = await embed_text(message)
 
     # PERSONAL POOL
     personal_pool = [
@@ -76,7 +72,7 @@ def fetch_context(message: str, user_id: int, top_k=7, per_group=10, max_history
 
     if len(history) > max_history:
         history.pop(0)
-
+    logger.info(f"[REQ: {req_id} [Context] {final_contexts}")
     return final_contexts
 
 def add_to_history(message: str, role = "assistant", user_id=None, max_history=150):

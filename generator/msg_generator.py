@@ -18,7 +18,7 @@ class ChatGenerator:
         mood = veyra.get_active_mood()
 
         #get context
-        context = fetch_context(user_msg, user_id)
+        context = await fetch_context(user_msg, user_id, req_id)
 
         system_prompt = create_character_prompt(
             user_name=user_name,
@@ -35,7 +35,12 @@ class ChatGenerator:
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_msg}
-                ]
+                ],
+                max_tokens=60,
+                temperature=0.9,
+                top_p=0.95,
+                frequency_penalty=0.5,
+                presence_penalty=0.1
             )
             reply = response.choices[0].message.content
             add_to_history(reply)
