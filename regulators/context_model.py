@@ -35,7 +35,7 @@ async def fetch_context(message: str, user_id: int, req_id: str, top_k=7, per_gr
 
     personal_scored = []
     for item in personal_pool:
-        sim = cosine(query_emb, item["embedding"])
+        sim = cosine(query_emb, item["embedding"]) + 0.05
         personal_scored.append((sim, item["content"]))
 
     personal_scored.sort(key=lambda x: x[0], reverse=True)
@@ -59,7 +59,11 @@ async def fetch_context(message: str, user_id: int, req_id: str, top_k=7, per_gr
     combined = personal_top + global_top
     combined.sort(key=lambda x: x[0], reverse=True)
 
-    final_contexts = [content for _, content in combined[:top_k]]
+    threshold = 0.35
+    final_contexts = [
+    content for sim, content in combined[:top_k]
+    if sim >= threshold
+]
 
     # Skip useless entries (too short/no signal)
     if len(message) > 3:
@@ -75,10 +79,10 @@ async def fetch_context(message: str, user_id: int, req_id: str, top_k=7, per_gr
     logger.info(f"[REQ: {req_id} [Context] {final_contexts}")
     return final_contexts
 
-def add_to_history(message: str, role = "assistant", user_id=None, max_history=150):
+async def add_to_history(message: str, role="assistant", user_id=None, max_history=150):
     # Normalize input
     message = message.strip().lower()
-    emb = embed_text(message)
+    emb = await embed_text(message)
     if len(message) > 3:
         history.append({
             "content": message,

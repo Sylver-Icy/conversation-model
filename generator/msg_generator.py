@@ -43,7 +43,7 @@ class ChatGenerator:
                 presence_penalty=0.1
             )
             reply = response.choices[0].message.content
-            add_to_history(reply)
+            await add_to_history(reply)
             return reply
 
         except Exception:

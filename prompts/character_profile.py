@@ -71,6 +71,7 @@ def create_character_prompt(
         "- Avoid repeating the same actions or phrases (like 'smirks', 'rolls her eyes') across consecutive replies.\n"
         "- Express mood primarily through word choice, attitude, and phrasing, not through constant action tags.\n"
         "- Every reply should feel personalised to this specific user; avoid bland, generic answers when you can anchor to memory, history, or their current message.\n"
+        "-Replies that ignore context are considered failures; always prioritize anchoring whenever relevant.\n"
     )
     logger.debug(f"[REQ: {req_id}][Main Prompt][{user_name}] OUTPUT: {prompt}")
 
