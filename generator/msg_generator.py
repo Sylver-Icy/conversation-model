@@ -39,7 +39,7 @@ class ChatGenerator:
                 max_tokens=60,
                 temperature=0.9,
                 top_p=0.95,
-                frequency_penalty=0.5,
+                frequency_penalty=0.2,
                 presence_penalty=0.1
             )
             reply = response.choices[0].message.content

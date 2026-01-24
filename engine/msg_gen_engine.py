@@ -24,7 +24,7 @@ class Engine:
 
         # Branch 3 — Commands
         if route_type == "command":
-            if label != "other_command":
+            if label != "LABEL_8":
                 return label
 
             return await self.cmd_dlcn.generate(message, req_id)

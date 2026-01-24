@@ -33,7 +33,7 @@ app = FastAPI()
 
 @app.post("/chat")
 async def chat(req: Message, api_key: str = Header(default=None)):
-    server_key = os.getenv("API_KEY")
+    server_key = os.getenv("CONVO_MODEL_API_KEY")
 
     if api_key != server_key:
         raise HTTPException(status_code=403, detail="Unauthorized")
