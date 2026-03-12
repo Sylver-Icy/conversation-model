@@ -6,14 +6,11 @@ It does not generate the reply text itself.
 
 from __future__ import annotations
 
-import asyncio
 import json
-import os
 from typing import Any
 
 from dotenv import load_dotenv
-from generator.help_generator import HelpGenerator
-from openai import OpenAI
+from state.client import client
 
 load_dotenv()
 
@@ -122,8 +119,6 @@ PLAYER STATS (user_stats table)
 === END VEYRA CONTEXT ===
 """
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 def _trim_history(history: list[dict[str, Any]], max_items: int = 10) -> list[dict[str, Any]]:
     """Return only the most recent history entries to control prompt size."""
@@ -160,7 +155,7 @@ def _safe_parse_decision(raw_content: str) -> dict[str, str]:
     return {"action": action, "reason": reason}
 
 
-def decide_action(history: list[dict], current_message: str) -> dict:
+async def decide_action(history: list[dict], current_message: str) -> dict:
     """Choose the best conversational action for the current message.
 
     Args:
@@ -206,7 +201,7 @@ def decide_action(history: list[dict], current_message: str) -> dict:
         "}"
     )
 
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model="gpt-5-mini",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -217,70 +212,3 @@ def decide_action(history: list[dict], current_message: str) -> dict:
 
     raw_content = response.choices[0].message.content or "{}"
     return _safe_parse_decision(raw_content)
-
-
-def _parse_cli_input(raw: str) -> tuple[str, str]:
-    """Parse `author: message` format; default author is `User`."""
-    if ":" in raw:
-        author, message = raw.split(":", 1)
-        return author.strip() or "User", message.strip()
-    return "User", raw.strip()
-
-
-def _run_cli() -> None:
-    """Simple interactive loop for local planner testing."""
-    history: list[dict[str, str]] = []
-    help_generator = HelpGenerator()
-
-    print("Action Planner CLI — Veyra Edition")
-    print("Type messages as `Author: message` for group chat simulation.")
-    print("Type `exit` to quit.\n")
-
-    while True:
-        raw = input("> ").strip()
-        if raw.lower() == "exit":
-            print("Exiting.")
-            break
-        if not raw:
-            continue
-
-        author, current_message = _parse_cli_input(raw)
-
-        # Add incoming message to conversation history.
-        history.append({"author": author, "role": "user", "content": current_message})
-
-        decision = decide_action(history, current_message)
-
-        if decision["action"] == "help":
-            # Only pass prev_reply if the immediately preceding assistant turn
-            # was also a help reply — i.e. this is a genuine help follow-up.
-            # We tag help entries with action="help" when we append them below.
-            last_assistant = next(
-                (e for e in reversed(history[:-1]) if e.get("role") == "assistant"),
-                None,
-            )
-            prev_help = (
-                last_assistant["content"]
-                if last_assistant and last_assistant.get("action") == "help"
-                else None
-            )
-            help_reply = asyncio.run(
-                help_generator.generate(
-                    message=current_message,
-                    req_id="cli-help",
-                    reason=decision["reason"],
-                    prev_reply=prev_help,
-                )
-            )
-            print(f"current reply {{{decision['action']}: {decision['reason']}}}")
-            print(f"model reply: {help_reply}\n")
-            history.append({"author": "Veyra", "role": "assistant", "action": "help", "content": help_reply})
-        else:
-            print(f"{decision['action']}: {decision['reason']}\n")
-
-        # Keep history bounded for both runtime and prompt size control.
-        history = _trim_history(history, max_items=10)
-
-
-if __name__ == "__main__":
-    _run_cli()

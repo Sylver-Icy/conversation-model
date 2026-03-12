@@ -36,7 +36,7 @@ class ChatGenerator:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_msg}
                 ],
-                max_tokens=60,
+                max_completion_tokens=60,
                 temperature=0.9,
                 top_p=0.95,
                 frequency_penalty=0.2,
