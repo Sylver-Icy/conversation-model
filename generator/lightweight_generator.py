@@ -29,7 +29,6 @@ class LightweightGenerator:
                 model="gpt-5-mini",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=50,
-                temperature=0.8,
             )
             return response.choices[0].message.content or "..."
         except OpenAIError as e:

@@ -28,7 +28,7 @@ class Engine:
             "act_unknowing": ActUnknowingActionHandler(),
         }
 
-    async def respond(self, message: str, user: dict, chat_history: list, req_id: str):
+    async def respond(self, message: str, user: "UserModel", chat_history: list, req_id: str):
         decision = decide_action(chat_history or [], message)
         action = decision["action"]
         handler = self.handlers.get(action, self.handlers["reply"])

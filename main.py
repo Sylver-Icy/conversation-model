@@ -1,7 +1,6 @@
 """
-Minimal test runner for the intent classification system.
-Reads user input from the console and prints the predicted intent.
-This file is just a quick  check for the classifier.
+FastAPI entry point for the Veyra conversation model.
+Receives chat requests, routes them through the action planner, and returns Veyra's reply.
 """
 import uuid
 from dotenv import load_dotenv
@@ -20,7 +19,7 @@ import uvicorn
 
 load_dotenv()
 
-user = Engine()
+engine = Engine()
 
 
 class UserModel(BaseModel):
@@ -67,7 +66,7 @@ async def chat(req: Message, api_key: str = Header(default=None)):
     start = time.time()
 
     try:
-        reply = await user.respond(
+        reply = await engine.respond(
             message=req.message,
             user=req.user,
             chat_history=req.message_history,
