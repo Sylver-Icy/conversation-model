@@ -28,16 +28,14 @@ class Engine:
             "act_unknowing": ActUnknowingActionHandler(),
         }
 
-    async def respond(self, message: str, user_id: int, user_name: str, frndship_title: str, chat_history: list, req_id: str):
+    async def respond(self, message: str, user: dict, chat_history: list, req_id: str):
         decision = decide_action(chat_history or [], message)
         action = decision["action"]
         handler = self.handlers.get(action, self.handlers["reply"])
 
         return await handler.handle(
             message=message,
-            user_id=user_id,
-            user_name=user_name,
-            frndship_title=frndship_title,
+            user=user,
             chat_history=chat_history,
             req_id=req_id,
             decision=decision,

@@ -22,11 +22,31 @@ load_dotenv()
 
 user = Engine()
 
-class Message(BaseModel):
-    text: str
-    frndship_title: str
+
+class UserModel(BaseModel):
+    """User identity and game state."""
     user_id: int
-    user_name: str
+    name: str
+    frndship_title: str
+    gold: int
+    chips: int
+    current_energy: int
+    exp: int
+    lvl: int
+    game_events: list = []
+    campaign_stage: int
+    current_quest: str | None = None
+    loadout: str | None = None
+
+    def get_stats(self) -> dict:
+        """Extract only stat fields, excluding identity fields."""
+        identity_fields = {"user_id", "name", "frndship_title"}
+        return {k: v for k, v in self.model_dump().items() if k not in identity_fields}
+
+
+class Message(BaseModel):
+    message: str
+    user: UserModel
     message_history: list
 
 app = FastAPI()
@@ -41,28 +61,26 @@ async def chat(req: Message, api_key: str = Header(default=None)):
     req_id = uuid.uuid4().hex[:6]
 
     # Log the incoming message
-    logger.info(f"====== ========== REQUEST {req_id} BEGIN ========== ======")
-    logger.info(f"[REQ:{req_id}] [Input][{req.user_id}] TEXT: {req.text}")
+    logger.info("====== ========== REQUEST %s BEGIN ========== ======", req_id)
+    logger.info("[REQ:%s] [Input][%s] TEXT: %s", req_id, req.user.user_id, req.message)
 
     start = time.time()
 
     try:
         reply = await user.respond(
-            req.text,
-            frndship_title=req.frndship_title,
-            user_id=req.user_id,
-            user_name=req.user_name,
+            message=req.message,
+            user=req.user,
             chat_history=req.message_history,
             req_id=req_id
         )
-    except Exception as e:
-        logger.error(f"[REQ:{req_id}] Engine crashed: {e}", exc_info=True)
+    except (TimeoutError, RuntimeError, ValueError) as e:
+        logger.error("[REQ:%s] Engine crashed: %s", req_id, e, exc_info=True)
         reply = "Veyra blacked out mid-thought 💀"
 
     duration = round((time.time() - start) * 1000, 2)
 
-    logger.info(f"[REQ:{req_id}] [Reply][{req.user_id}] OUTPUT: {reply} | Took {duration}ms")
-    logger.info(f"====== ========== REQUEST {req_id} END ========== ======")
+    logger.info("[REQ:%s] [Reply][%s] OUTPUT: %s | Took %s ms", req_id, req.user.user_id, reply, duration)
+    logger.info("====== ========== REQUEST %s END ========== ======", req_id)
 
     return reply
 
