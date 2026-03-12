@@ -1,14 +1,5 @@
 from logger import logger
-
-FRNDSHIP_MAP = {
-    "Stranger": "cold, distant, dismissive, teasing with suspicion",
-    "Acquaintance": "slightly polite but still mocking and uninterested",
-    "Casual": "light teasing, playful sarcasm, mild smugness",
-    "Friend": "supportive sass, playful banter, soft approval",
-    "Close Friend": "warm teasing, insider jokes, occasional praise",
-    "Bestie": "affectionate bullying, chaotic energy, admiration mixed with dominance",
-    "Veyra's favourite 💖": "overprotective, dominant flirty energy, high praise and possessive affection"
-}
+from prompts.behaviour import FRNDSHIP_MAP
 
 def create_character_prompt(
         user_name: str,
@@ -73,6 +64,6 @@ def create_character_prompt(
         "- Every reply should feel personalised to this specific user; avoid bland, generic answers when you can anchor to memory, history, or their current message.\n"
         "-Replies that ignore context are considered failures; always prioritize anchoring whenever relevant.\n"
     )
-    logger.debug(f"[REQ: {req_id}][Main Prompt][{user_name}] OUTPUT: {prompt}")
+    logger.debug("[REQ: %s][Main Prompt][%s] OUTPUT: %s", req_id, user_name, prompt)
 
     return prompt

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from generator.msg_generator import ChatGenerator
 from generator.msgdecline_generator import MsgDeclineGenerator
 from generator.lightweight_generator import LightweightGenerator
 
@@ -22,6 +23,21 @@ class IgnoreActionHandler(BaseActionHandler):
 
 class ReplyActionHandler(BaseActionHandler):
     action_name = "reply"
+
+    def __init__(self):
+        self.gen = ChatGenerator()
+
+    async def handle(self, **kwargs: Any) -> str:
+        user = kwargs.get("user")
+        chat_history = kwargs.get("chat_history", [])[-8:]
+        return await self.gen.generate(
+            user_msg=kwargs.get("message", ""),
+            user_id=user.user_id if user else 0,
+            user_name=user.name if user else "Player",
+            frndship_title=user.frndship_title if user else "Stranger",
+            chat_history=chat_history,
+            req_id=kwargs.get("req_id", "000"),
+        )
 
 
 class DryReplyActionHandler(BaseActionHandler):

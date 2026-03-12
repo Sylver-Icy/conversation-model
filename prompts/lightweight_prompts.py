@@ -3,7 +3,7 @@ Prompts for lightweight LLM-based actions.
 Each action has minimal token budget and specific instruction goals.
 """
 
-from prompts.character_profile import FRNDSHIP_MAP
+from prompts.behaviour import FRNDSHIP_MAP
 
 
 def dry_reply_prompt(message: str, mood: str | None, frndship_title: str, history: list) -> str:
