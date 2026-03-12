@@ -1,4 +1,5 @@
 from prompts.msg_decline import lore_decline_prompt
+from openai import OpenAIError
 
 from state.client import client
 
@@ -16,5 +17,5 @@ class MsgDeclineGenerator:
             )
             return response.choices[0].message.content
 
-        except Exception:
+        except OpenAIError:
             return "my brain glitched—ask again?"
