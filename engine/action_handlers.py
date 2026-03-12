@@ -5,6 +5,7 @@ from typing import Any
 from generator.msg_generator import ChatGenerator
 from generator.msgdecline_generator import MsgDeclineGenerator
 from generator.lightweight_generator import LightweightGenerator
+from generator.help_generator import HelpGenerator
 
 
 class BaseActionHandler:
@@ -110,6 +111,17 @@ class AskQuestionActionHandler(BaseActionHandler):
 
 class HelpActionHandler(BaseActionHandler):
     action_name = "help"
+
+    def __init__(self):
+        self.gen = HelpGenerator()
+
+    async def handle(self, **kwargs: Any) -> str:
+        return await self.gen.generate(
+            message=kwargs.get("message", ""),
+            req_id=kwargs.get("req_id", "000"),
+            reason=kwargs.get("reason"),
+            prev_reply=kwargs.get("prev_reply"),
+        )
 
 
 class StatCheckActionHandler(BaseActionHandler):
