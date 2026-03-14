@@ -10,6 +10,7 @@ from engine.action_handlers import (
     ReplyActionHandler,
     StatCheckActionHandler,
 )
+from generator.msg_generator import veyra
 from planner.action_planner import decide_action
 from typing import Any
 
@@ -65,9 +66,16 @@ class Engine:
     async def respond(self, message: str, user: "UserModel", chat_history: list, req_id: str):
         history = self._normalize_history(chat_history)
 
-        decision = await decide_action(history, message)
+        decision = await decide_action(history, message, mood=veyra.get_active_mood())
         action = decision["action"]
         reason = decision.get("reason")
+
+        # Apply mood: decay first (natural cooldown), then apply new deltas
+        veyra.decay_mood(factor=0.97)
+        veyra.update_mood(decision["mood_deltas"])
+        veyra.log_state(req_id)
+        current_mood = veyra.get_active_mood()
+
         handler = self.handlers.get(action, self.handlers["reply"])
 
         # For help action: only pass the previous reply when the last assistant
@@ -88,4 +96,5 @@ class Engine:
             req_id=req_id,
             reason=reason,
             prev_reply=prev_reply,
+            mood=current_mood,
         )

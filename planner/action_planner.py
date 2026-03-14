@@ -130,7 +130,10 @@ def _serialize_history(history: list[dict[str, Any]]) -> str:
     return json.dumps(history, ensure_ascii=True, indent=2)
 
 
-def _safe_parse_decision(raw_content: str) -> dict[str, str]:
+_MOOD_KEYS = frozenset({"happy", "angry", "irritated", "sad", "flirty"})
+
+
+def _safe_parse_decision(raw_content: str) -> dict:
     """Parse and validate LLM JSON output into the expected decision shape."""
     try:
         data = json.loads(raw_content)
@@ -152,21 +155,26 @@ def _safe_parse_decision(raw_content: str) -> dict[str, str]:
     if not reason:
         reason = "Selected the best-fit action for the current flow."
 
-    return {"action": action, "reason": reason}
+    raw_deltas = data.get("mood_deltas", {})
+    mood_deltas = {k: float(raw_deltas.get(k, 0.0)) for k in _MOOD_KEYS}
+
+    return {"action": action, "reason": reason, "mood_deltas": mood_deltas}
 
 
-async def decide_action(history: list[dict], current_message: str) -> dict:
+async def decide_action(history: list[dict], current_message: str, mood: str = "neutral") -> dict:
     """Choose the best conversational action for the current message.
 
     Args:
         history: Conversation history entries. Each entry should look like:
             {"author": "Name", "role": "user|assistant", "content": "..."}
         current_message: Incoming user message text.
+        mood: Veyra's current dominant mood (e.g. "angry", "happy").
 
     Returns:
         A dictionary with keys:
             - action: one action from MOVES
             - reason: one short explanation sentence
+            - mood_deltas: dict of numeric emotion changes caused by this message
     """
     recent_history = _trim_history(history, max_items=10)
 
@@ -174,14 +182,16 @@ async def decide_action(history: list[dict], current_message: str) -> dict:
         "You are a conversation action planner for a Discord-style group chat built around "
         "the Veyra RPG bot. Your task is to choose exactly one action from a predefined move set. "
         "You are NOT allowed to generate a conversational reply. "
-        "Return JSON only with keys: action, reason.\n\n"
+        "Return JSON only with keys: action, reason, mood_deltas.\n\n"
         + VEYRA_CONTEXT
         + "\n\nUse the Veyra context above to correctly identify when a message is asking "
         "for system help (help), asking about their own stats/currency (stat_check), "
         "or casually discussing game topics (game_topic). "
         "Only fall back to reply/dry_reply/etc. when none of the Veyra-specific moves apply. "
         "Use act_unknowing when a user references something explicitly from the real world (real people, "
-        "other games, Earth locations) — but prefer other actions if the message is ambiguous or could fit Natlade."
+        "other games, Earth locations) — but prefer other actions if the message is ambiguous or could fit Natlade.\n\n"
+        f"Veyra's current dominant mood: {mood}. "
+        "Let this influence whether she engages warmly, dismissively, or not at all."
     )
 
     user_prompt = (
@@ -190,14 +200,18 @@ async def decide_action(history: list[dict], current_message: str) -> dict:
         "Rules:\n"
         "1) action must be exactly one key from MOVES.\n"
         "2) reason must be one short sentence.\n"
-        "3) Return JSON only, no markdown, no code fences, no extra text.\n\n"
+        "3) mood_deltas: a JSON object with keys happy/angry/irritated/sad/flirty.\n"
+        "   Use positive numbers to increase a mood, negative to decrease.\n"
+        "   Reflect how this message would emotionally affect Veyra.\n"
+        "4) Return JSON only, no markdown, no code fences, no extra text.\n\n"
         "Conversation history (last up to 10 messages):\n"
         f"{_serialize_history(recent_history)}\n\n"
         f"Current incoming message:\n{current_message}\n\n"
         "Return exactly this schema:\n"
         "{\n"
         "  \"action\": \"<one key from MOVES>\",\n"
-        "  \"reason\": \"<one short sentence>\"\n"
+        "  \"reason\": \"<one short sentence>\",\n"
+        "  \"mood_deltas\": {\"happy\": 0, \"angry\": 0, \"irritated\": 0, \"sad\": 0, \"flirty\": 0}\n"
         "}"
     )
 

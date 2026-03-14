@@ -36,6 +36,7 @@ class ReplyActionHandler(BaseActionHandler):
             user_id=user.user_id if user else 0,
             user_name=user.name if user else "Player",
             frndship_title=user.frndship_title if user else "Stranger",
+            mood=kwargs.get("mood", "neutral"),
             chat_history=chat_history,
             req_id=kwargs.get("req_id", "000"),
         )
@@ -51,7 +52,7 @@ class DryReplyActionHandler(BaseActionHandler):
         user = kwargs.get("user")
         return await self.gen.dry_reply(
             message=kwargs.get("message", ""),
-            mood=None,  # not wired yet
+            mood=kwargs.get("mood"),
             frndship_title=user.frndship_title if user else "Stranger",
             chat_history=kwargs.get("chat_history", []),
             req_id=kwargs.get("req_id", "000"),
@@ -69,7 +70,7 @@ class EndConvoActionHandler(BaseActionHandler):
         return await self.gen.end_convo(
             message=kwargs.get("message", ""),
             frndship_title=user.frndship_title if user else "Stranger",
-            mood=None,  # not wired yet
+            mood=kwargs.get("mood"),
             chat_history=kwargs.get("chat_history", []),
             req_id=kwargs.get("req_id", "000"),
         )
@@ -86,7 +87,7 @@ class ChangeTopicActionHandler(BaseActionHandler):
         return await self.gen.change_topic(
             message=kwargs.get("message", ""),
             frndship_title=user.frndship_title if user else "Stranger",
-            mood=None,  # not wired yet
+            mood=kwargs.get("mood"),
             chat_history=kwargs.get("chat_history", []),
             req_id=kwargs.get("req_id", "000"),
         )
@@ -103,7 +104,7 @@ class AskQuestionActionHandler(BaseActionHandler):
         return await self.gen.ask_question(
             message=kwargs.get("message", ""),
             frndship_title=user.frndship_title if user else "Stranger",
-            mood=None,  # not wired yet
+            mood=kwargs.get("mood"),
             chat_history=kwargs.get("chat_history", []),
             req_id=kwargs.get("req_id", "000"),
         )
@@ -154,7 +155,7 @@ class GameTopicActionHandler(BaseActionHandler):
         return await self.gen.game_topic(
             message=kwargs.get("message", ""),
             frndship_title=user.frndship_title if user else "Stranger",
-            mood=None,  # not wired yet
+            mood=kwargs.get("mood"),
             chat_history=kwargs.get("chat_history", []),
             req_id=kwargs.get("req_id", "000"),
         )
