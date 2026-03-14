@@ -141,8 +141,8 @@ def stat_check_prompt(message: str, stats: dict, user_name: str) -> str:
         f"You are Veyra. {user_name} asked: '{message}'. "
         "Here are their current numbers:\n"
         f"{stats_str}\n\n"
-        "In one or two lines, tell them their stats in a sarcastic and playful way. "
-        "Be specific about what they asked for. "
+        "In one or two lines, tell them their stat in a sarcastic and playful way. "
+        "Be specific about what they asked for. DON'T TELL THEM ALL THEIR STATS, ONLY THE ONE THEY ASKED ABOUT."
         "Make it feel natural and witty. "
         "DON'T INVENT ANY STATS OR NUMBERS THAT AREN'T IN THE LIST. ONLY COMMENT ON THE STATS PROVIDED. if no data say you dont know anything about their stats and act confused or dismissive."
     )
