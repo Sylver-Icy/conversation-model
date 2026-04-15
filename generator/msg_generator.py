@@ -11,8 +11,18 @@ class ChatGenerator:
     def __init__(self):
         self.client = client
 
-    async def generate(self, user_msg: str, user_id: int, user_name: str = "Player", frndship_title: str = "Stranger", mood: str = "neutral", chat_history: list = [], req_id: str = "000" ) -> str:
-        #get context
+    async def generate(
+        self,
+        user_msg: str,
+        user_id: int,
+        user_name: str = "Player",
+        frndship_title: str = "Stranger",
+        game_events: list | None = None,
+        mood: str = "neutral",
+        chat_history: list | None = None,
+        req_id: str = "000",
+    ) -> str:
+        # get context
         context = await fetch_context(user_msg, user_id, req_id)
 
         system_prompt = create_character_prompt(
@@ -20,8 +30,9 @@ class ChatGenerator:
             frndship_title=frndship_title,
             mood=mood,
             chat_context=context,
-            chat_history=chat_history,
-            req_id=req_id
+            chat_history=chat_history or [],
+            req_id=req_id,
+            game_events=game_events or [],
         )
 
         try:
@@ -38,7 +49,7 @@ class ChatGenerator:
                 presence_penalty=0.1
             )
             reply = response.choices[0].message.content
-            await add_to_history(reply)
+            await add_to_history(reply, role="assistant", user_id=user_id)
             return reply
 
         except Exception:

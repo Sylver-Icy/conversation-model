@@ -22,7 +22,7 @@ def dry_reply_prompt(message: str, mood: str | None, frndship_title: str, histor
     prompt += (
         f"Recent chat:\n{history_str}\n\n"
         f"User: {message}\n\n"
-        "Send a short, dry reply based on mood and friendship level. Be dismissive or sarcastic, but keep it to one line. This is for when the conversation isn't worth a full response, so make it feel like a quick, in-character reaction."
+        "Send a short, dry reply based on mood and friendship level. Be dismissive or sarcastic, but keep it to one line. This is for when the conversation isn't worth a full response, so make it feel like a quick, in-character reaction. Do not reuse the exact same wording from recent replies."
     )
 
     return prompt
@@ -45,7 +45,7 @@ def end_convo_prompt(message: str, frndship_title: str, mood: str | None, histor
         f"Recent chat:\n{history_str}\n\n"
         f"Final message from user: {message}\n\n"
         "The conversation is ending. Send a short in-character goodbye that matches your friendship level and mood. "
-        "Keep it to one or two lines max."
+        "Keep it to one or two lines max. Do not echo your earlier wording."
     )
 
     return prompt
@@ -80,7 +80,7 @@ def change_topic_prompt(message: str, frndship_title: str, mood: str | None, his
         f"Recent chat:\n{history_str}\n\n"
         f"User: {message}\n\n"
         f"The conversation stalled. Smoothly introduce a new topic from Natlade: {topics_str}. "
-        "Keep it natural and in one or two lines."
+        "Keep it natural and in one or two lines. Make it sound fresh instead of repeating your recent phrasing."
     )
 
     return prompt
@@ -103,7 +103,7 @@ def ask_question_prompt(message: str, frndship_title: str, mood: str | None, his
         f"Recent chat:\n{history_str}\n\n"
         f"User: {message}\n\n"
         "Ask the user something to continue the conversation. "
-        "Make it relevant to what they said or previous conversation. Keep it to one or two lines."
+        "Make it relevant to what they said or previous conversation. Keep it to one or two lines. Do not reuse the same question shape you just used."
     )
 
     return prompt
@@ -126,25 +126,32 @@ def game_topic_prompt(message: str, frndship_title: str, mood: str | None, histo
         f"Recent chat:\n{history_str}\n\n"
         f"User: {message}\n\n"
         "Respond to their comment about Veyra game topics casually and in-character. "
-        "Keep it short and sassy, one or two lines."
+        "Keep it short and sassy, one or two lines. If recent chat gives you something concrete, use it. Avoid repeating your recent wording."
     )
 
     return prompt
 
 
-def stat_check_prompt(message: str, stats: dict, user_name: str) -> str:
+def stat_check_prompt(
+    message: str,
+    stats: dict,
+    user_name: str,
+    frndship_title: str = "Stranger",
+) -> str:
     """Narrate the user's game stats in Veyra's voice."""
     # Format stats for readability
     stats_str = "\n".join([f"- {key}: {value}" for key, value in stats.items()])
 
     prompt = (
         f"You are Veyra. {user_name} asked: '{message}'. "
+        f"Friendship level: {frndship_title} — Behavior: {FRNDSHIP_MAP.get(frndship_title, '')}. "
         "Here are their current numbers:\n"
         f"{stats_str}\n\n"
         "In one or two lines, tell them their stat in a sarcastic and playful way. "
         "Be specific about what they asked for. DON'T TELL THEM ALL THEIR STATS, ONLY THE ONE THEY ASKED ABOUT."
         "Make it feel natural and witty. "
-        "DON'T INVENT ANY STATS OR NUMBERS THAT AREN'T IN THE LIST. ONLY COMMENT ON THE STATS PROVIDED. if no data say you dont know anything about their stats and act confused or dismissive."
+        "DON'T INVENT ANY STATS OR NUMBERS THAT AREN'T IN THE LIST. ONLY COMMENT ON THE STATS PROVIDED. if no data say you dont know anything about their stats and act confused or dismissive. "
+        "Match your warmth to the friendship level exactly."
     )
 
     return prompt

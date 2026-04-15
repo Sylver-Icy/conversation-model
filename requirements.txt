@@ -3,3 +3,8 @@ datasets==2.14.5
 torch
 tqdm
 accelerate
+fastapi
+uvicorn
+python-dotenv
+openai
+numpy

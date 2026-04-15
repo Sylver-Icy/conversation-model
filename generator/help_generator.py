@@ -16,7 +16,14 @@ class HelpGenerator:
         self.retriever = HelpRetriever()
         self.client = client
 
-    async def generate(self, message: str, req_id: str, reason: str | None = None, prev_reply: str | None = None) -> str:
+    async def generate(
+        self,
+        message: str,
+        req_id: str,
+        reason: str | None = None,
+        prev_reply: str | None = None,
+        frndship_title: str = "Stranger",
+    ) -> str:
         # Use planner reason for retrieval — it's semantically resolved (e.g. follow-ups)
         retrieval_query = reason if reason else message
         logger.info(
@@ -27,7 +34,13 @@ class HelpGenerator:
         sections = await self.retriever.retrieve(retrieval_query, req_id=req_id, top_k=2)
         logger.info("[REQ: %s][HelpGenerator] %d section(s) injected into prompt", req_id, len(sections))
 
-        prompt = help_prompt(message, sections, reason=reason, prev_reply=prev_reply)
+        prompt = help_prompt(
+            message,
+            sections,
+            reason=reason,
+            prev_reply=prev_reply,
+            frndship_title=frndship_title,
+        )
         logger.debug("[REQ: %s][HelpGenerator] prompt length: %d chars", req_id, len(prompt))
 
         try:

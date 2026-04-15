@@ -2,22 +2,32 @@
 FastAPI entry point for the Veyra conversation model.
 Receives chat requests, routes them through the action planner, and returns Veyra's reply.
 """
-import uuid
-from dotenv import load_dotenv
+import os
 import time
+import uuid
 
+from dotenv import load_dotenv
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+load_dotenv()
+
+from fastapi import FastAPI, Header, HTTPException
+from pydantic import BaseModel, Field
+import uvicorn
 
 from engine.msg_gen_engine import Engine
 from logger import logger
 
-import os
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from fastapi import FastAPI, Header, HTTPException
-from pydantic import BaseModel
-import uvicorn
+def _require_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"{name} is required to run the conversation model.")
+    return value
 
-load_dotenv()
+
+_require_env("OPENAI_API_KEY")
+SERVER_API_KEY = _require_env("CONVO_MODEL_API_KEY")
 
 engine = Engine()
 
@@ -32,29 +42,31 @@ class UserModel(BaseModel):
     current_energy: int
     exp: int
     lvl: int
-    game_events: list = []
+    game_events: list = Field(default_factory=list)
     campaign_stage: int
     current_quest: str | None = None
     loadout: str | None = None
 
     def get_stats(self) -> dict:
         """Extract only stat fields, excluding identity fields."""
-        identity_fields = {"user_id", "name", "frndship_title"}
+        identity_fields = {"user_id", "name", "frndship_title", "game_events", "current_quest", "loadout"}
         return {k: v for k, v in self.model_dump().items() if k not in identity_fields}
 
 
 class Message(BaseModel):
     message: str
     user: UserModel
-    message_history: list
+    message_history: list = Field(default_factory=list)
 
 app = FastAPI()
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.post("/chat")
 async def chat(req: Message, api_key: str = Header(default=None)):
-    server_key = os.getenv("CONVO_MODEL_API_KEY")
-
-    if api_key != server_key:
+    if api_key != SERVER_API_KEY:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
     req_id = uuid.uuid4().hex[:6]

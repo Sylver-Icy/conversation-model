@@ -3,11 +3,19 @@ Prompt builder for the help action.
 Injects retrieved knowledge sections so Veyra answers from facts, not hallucination.
 """
 
+from prompts.behaviour import FRNDSHIP_MAP
+
 
 _SECONDARY_SECTION_MAX_CHARS = 1_200
 
 
-def help_prompt(message: str, sections: list[str], reason: str | None = None, prev_reply: str | None = None) -> str:
+def help_prompt(
+    message: str,
+    sections: list[str],
+    reason: str | None = None,
+    prev_reply: str | None = None,
+    frndship_title: str = "Stranger",
+) -> str:
     """Build the help prompt with retrieved sections as the source of truth.
 
     The top-ranked section is kept intact (highest relevance).
@@ -22,7 +30,9 @@ def help_prompt(message: str, sections: list[str], reason: str | None = None, pr
         "You act like a clever, teasing mentor who enjoys explaining things to curious players. "
         "Your tone is confident, playful, a little mischievous, and slightly flirtatious — "
         "like a teacher who already knows the answer and enjoys watching the student figure it out. "
-        "You sometimes tease the player lightly, but you are never rude or dismissive. "
+        f"Friendship level with this player: {frndship_title}. "
+        f"Required behavior: {FRNDSHIP_MAP.get(frndship_title, FRNDSHIP_MAP['Stranger'])}. "
+        "Let this friendship level control how warm or harsh you sound. "
         "\n\n"
         "STRICT RULES:\n"
         "1. Use ONLY the information from the knowledge sections below.\n"
@@ -31,6 +41,7 @@ def help_prompt(message: str, sections: list[str], reason: str | None = None, pr
         "3. If the sections do not contain enough information, say the feature does not seem to exist or that it may not be implemented yet.\n"
         "4. Answer briefly. This is an in‑game hint, NOT a wiki article.\n"
         "5. Give only the core mechanic unless the user explicitly asks for more detail.\n"
+        "6. Do not repeat your previous wording if a previous answer is provided; build on it.\n"
         "\n"
         "RESPONSE FORMAT:\n"
         "• 1–3 sentences explaining the core mechanic.\n"

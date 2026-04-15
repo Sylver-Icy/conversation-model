@@ -36,6 +36,7 @@ class ReplyActionHandler(BaseActionHandler):
             user_id=user.user_id if user else 0,
             user_name=user.name if user else "Player",
             frndship_title=user.frndship_title if user else "Stranger",
+            game_events=getattr(user, "game_events", []) if user else [],
             mood=kwargs.get("mood", "neutral"),
             chat_history=chat_history,
             req_id=kwargs.get("req_id", "000"),
@@ -117,11 +118,13 @@ class HelpActionHandler(BaseActionHandler):
         self.gen = HelpGenerator()
 
     async def handle(self, **kwargs: Any) -> str:
+        user = kwargs.get("user")
         return await self.gen.generate(
             message=kwargs.get("message", ""),
             req_id=kwargs.get("req_id", "000"),
             reason=kwargs.get("reason"),
             prev_reply=kwargs.get("prev_reply"),
+            frndship_title=user.frndship_title if user else "Stranger",
         )
 
 
@@ -139,6 +142,7 @@ class StatCheckActionHandler(BaseActionHandler):
         return await self.gen.stat_check(
             message=kwargs.get("message", ""),
             user_name=user.name if user else "Player",
+            frndship_title=user.frndship_title if user else "Stranger",
             user_stats=user_stats,
             req_id=kwargs.get("req_id", "000"),
         )

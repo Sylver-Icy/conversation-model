@@ -93,7 +93,7 @@ class FakeUser:
             setattr(self, k, v)
 
     def get_stats(self) -> dict:
-        identity_fields = {"user_id", "name", "frndship_title"}
+        identity_fields = {"user_id", "name", "frndship_title", "game_events", "current_quest", "loadout"}
         return {k: v for k, v in self.__dict__.items() if k not in identity_fields}
 
 

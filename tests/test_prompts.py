@@ -65,6 +65,18 @@ class TestCharacterPrompt:
         assert "remembered: you called me cute last time" in prompt
         assert "hey" in prompt
 
+    def test_includes_recent_game_events(self):
+        prompt = create_character_prompt(
+            user_name="Test",
+            frndship_title="Casual",
+            mood="happy",
+            chat_context=[],
+            chat_history=[],
+            req_id="t04b",
+            game_events=[{"summary": "Won the lottery with 3 ticket(s) and pocketed 1200 gold."}],
+        )
+        assert "Won the lottery with 3 ticket(s) and pocketed 1200 gold." in prompt
+
     def test_never_mentions_ai_or_bot(self):
         prompt = create_character_prompt(
             user_name="Test", frndship_title="Casual", mood="neutral",

@@ -106,8 +106,9 @@ class LightweightGenerator:
         user_name: str,
         user_stats: dict,
         req_id: str,
+        frndship_title: str = "Stranger",
         **_
     ) -> str:
         """Narrate user stats in-character."""
-        prompt = stat_check_prompt(message, user_stats, user_name)
+        prompt = stat_check_prompt(message, user_stats, user_name, frndship_title)
         return await self._call(prompt, req_id)
